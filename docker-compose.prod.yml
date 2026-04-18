@@ -1,0 +1,47 @@
+version: "3.9"
+
+# Production overrides — use with:
+# docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  postgres:
+    # In production use AWS RDS — remove this service and update DB_URL in backend
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASS}   # from AWS Secrets Manager via env
+    volumes:
+      - /data/postgres:/var/lib/postgresql/data  # EBS-backed volume
+
+  ml-service:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+    environment:
+      - PYTHONUNBUFFERED=1
+      - OMP_NUM_THREADS=2
+
+  backend:
+    restart: always
+    environment:
+      DB_URL:               ${DB_URL}            # RDS endpoint
+      DB_USER:              ${DB_USER}
+      DB_PASS:              ${DB_PASS}
+      JWT_SECRET:           ${JWT_SECRET}
+      ML_SERVICE_URL:       http://ml-service:8000
+      TMDB_API_KEY:         ${TMDB_API_KEY}
+      SPOTIFY_CLIENT_ID:    ${SPOTIFY_CLIENT_ID}
+      SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET}
+      SPRING_PROFILES_ACTIVE: prod
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  frontend:
+    restart: always
+    # In production, frontend is served from S3 + CloudFront
+    # Keep this service only if serving via EC2

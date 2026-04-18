@@ -1,0 +1,47 @@
+# Environment
+.env
+*.env.local
+*.env.production
+
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+.mvn/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+*.egg-info/
+dist/
+.pytest_cache/
+.mypy_cache/
+# HuggingFace cache
+~/.cache/huggingface/
+
+# Node / React
+node_modules/
+dist/
+build/
+.vite/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Docker
+.docker/
+
+# Logs
+*.log
+logs/
+
+# Database
+*.sql.bak
