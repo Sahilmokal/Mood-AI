@@ -5,18 +5,10 @@ export const useAuthStore = create(
   persist(
     (set) => ({
       token: null,
-      user: null,   // { email, username }
-
+      user: null,
       setAuth: (token, user) => set({ token, user }),
-
-      logout: () => {
-        set({ token: null, user: null })
-        window.location.href = '/login'
-      },
+      logout: () => { set({ token: null, user: null }); window.location.href = '/login' },
     }),
-    {
-      name: 'moodrec-auth',
-      partialize: (state) => ({ token: state.token, user: state.user }),
-    }
+    { name: 'moodrec-auth', partialize: s => ({ token: s.token, user: s.user }) }
   )
 )

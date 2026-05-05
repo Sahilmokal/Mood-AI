@@ -1,77 +1,79 @@
-import { Outlet, Link, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Brain, User, LogOut, History } from 'lucide-react'
+import { Outlet, Link, useLocation } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '../../store/authStore'
+import { Zap, History, LogOut, User } from 'lucide-react'
 
 export default function Layout() {
   const { user, logout } = useAuthStore()
-  const navigate = useNavigate()
+  const loc = useLocation()
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      {/* Ambient background orbs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="orb orb-volt w-[600px] h-[600px] -top-40 -left-40 opacity-40" />
+        <div className="orb orb-aurora w-[500px] h-[500px] top-1/2 -right-60 opacity-30" />
+        <div className="orb orb-rose w-[400px] h-[400px] bottom-0 left-1/3 opacity-20" />
+        <div className="grid-bg absolute inset-0 opacity-50" />
+      </div>
+
       {/* Navbar */}
-      <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="p-2 rounded-xl bg-brand-500/10 group-hover:bg-brand-500/20 transition-colors">
-                <Brain size={20} className="text-brand-400" />
-              </div>
-              <span className="text-lg font-bold text-white">MoodRec</span>
-            </Link>
-
-            {/* Nav links */}
-            <nav className="hidden sm:flex items-center gap-1">
-              <NavLink to="/">Analyze</NavLink>
-              <NavLink to="/profile">History</NavLink>
-            </nav>
-
-            {/* User menu */}
-            <div className="flex items-center gap-3">
-              <span className="hidden sm:block text-sm text-slate-400">
-                {user?.username || user?.email?.split('@')[0]}
-              </span>
-              <button
-                onClick={() => navigate('/profile')}
-                className="p-2 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
-              >
-                <User size={18} />
-              </button>
-              <button
-                onClick={logout}
-                className="p-2 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-red-400 transition-colors"
-                title="Sign out"
-              >
-                <LogOut size={18} />
-              </button>
+      <header className="relative z-50 border-b border-border/60">
+        <div className="absolute inset-0 bg-ink/80 backdrop-blur-xl" />
+        <div className="relative max-w-7xl mx-auto px-5 flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-lg bg-volt flex items-center justify-center
+                            group-hover:shadow-[0_0_20px_#c8ff0080] transition-shadow">
+              <Zap size={16} className="text-ink fill-ink" />
             </div>
+            <span className="font-display font-bold text-snow tracking-tight text-lg">
+              MoodRec
+            </span>
+          </Link>
+
+          {/* Nav */}
+          <nav className="hidden sm:flex items-center gap-1">
+            {[{ to: '/', label: 'Analyze' }, { to: '/profile', label: 'History' }].map(n => (
+              <Link key={n.to} to={n.to}
+                className={`px-4 py-2 rounded-full text-sm font-body font-medium transition-all duration-200
+                  ${loc.pathname === n.to
+                    ? 'bg-volt/10 text-volt border border-volt/20'
+                    : 'text-dim hover:text-soft'}`}>
+                {n.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* User */}
+          <div className="flex items-center gap-2">
+            <span className="hidden sm:block font-mono text-xs text-dim">
+              {user?.username || user?.email?.split('@')[0]}
+            </span>
+            <Link to="/profile"
+              className="p-2 rounded-xl text-dim hover:text-soft hover:bg-panel transition-all">
+              <User size={16} />
+            </Link>
+            <button onClick={logout}
+              className="p-2 rounded-xl text-dim hover:text-rose hover:bg-rose/10 transition-all">
+              <LogOut size={16} />
+            </button>
           </div>
         </div>
       </header>
 
-      {/* Page content */}
-      <main className="flex-1">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Outlet />
-        </motion.div>
+      {/* Content */}
+      <main className="relative z-10 flex-1">
+        <AnimatePresence mode="wait">
+          <motion.div key={loc.pathname}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25 }}>
+            <Outlet />
+          </motion.div>
+        </AnimatePresence>
       </main>
     </div>
-  )
-}
-
-function NavLink({ to, children }) {
-  return (
-    <Link
-      to={to}
-      className="px-4 py-2 rounded-xl text-sm font-medium text-slate-400
-                 hover:text-slate-100 hover:bg-slate-800 transition-colors"
-    >
-      {children}
-    </Link>
   )
 }
