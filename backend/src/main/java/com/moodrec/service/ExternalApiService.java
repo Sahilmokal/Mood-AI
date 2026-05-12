@@ -49,6 +49,8 @@ public class ExternalApiService {
                     .bodyToMono(JsonNode.class)
                     .block();
 
+            if (response == null || !response.has("results")) return List.of();
+
             return StreamSupport.stream(response.get("results").spliterator(), false)
                     .limit(limit)
                     .map(n -> RecItem.builder()
@@ -68,21 +70,82 @@ public class ExternalApiService {
         }
     }
 
-    // ───────── MUSIC (FIXED: NO EMBED, ONLY SEARCH LINK) ─────────
+    // ───────── 🔥 FIXED MUSIC (ALL MOODS) ─────────
     public List<RecItem> fetchMusic(String mood, Map<String, double[]> map, int limit) {
 
-        Map<String, List<String>> music = Map.of(
-                "happy", List.of("happy upbeat songs", "party songs"),
-                "sad", List.of("sad songs", "emotional music"),
-                "stressed", List.of("lofi music", "calm piano"),
-                "angry", List.of("rage music", "metal playlist"),
-                "calm", List.of("relaxing music", "meditation music"),
-                "energetic", List.of("gym songs", "edm playlist"),
-                "neutral", List.of("popular songs", "indie playlist")
-        );
+        mood = mood.toLowerCase().trim();
+        log.info("🎵 Mood received: {}", mood);
 
-        return music.getOrDefault(mood, List.of("popular songs"))
-                .stream()
+        Map<String, List<String>> musicMap = new HashMap<>();
+
+        musicMap.put("happy", List.of(
+                "happy upbeat songs playlist",
+                "feel good bollywood songs",
+                "party songs hindi"
+        ));
+
+        musicMap.put("sad", List.of(
+                "sad songs hindi",
+                "breakup songs playlist",
+                "emotional songs bollywood"
+        ));
+
+        musicMap.put("angry", List.of(
+                "angry rock music",
+                "rage workout songs",
+                "intense gym music"
+        ));
+
+        musicMap.put("stressed", List.of(
+                "lofi beats relax",
+                "deep focus music",
+                "calm piano music"
+        ));
+
+        musicMap.put("calm", List.of(
+                "meditation music",
+                "relaxing instrumental",
+                "peaceful flute music"
+        ));
+
+        musicMap.put("energetic", List.of(
+                "gym motivation songs",
+                "edm workout playlist",
+                "high energy music"
+        ));
+
+        musicMap.put("neutral", List.of(
+                "trending songs india",
+                "indie songs playlist",
+                "top hits playlist"
+        ));
+
+        musicMap.put("fearful", List.of(
+                "calm music for anxiety",
+                "soothing instrumental",
+                "healing music"
+        ));
+
+        musicMap.put("surprised", List.of(
+                "upbeat electronic music",
+                "trending viral songs",
+                "dance hits"
+        ));
+
+        musicMap.put("disgusted", List.of(
+                "comedy songs",
+                "funny music videos",
+                "light mood songs"
+        ));
+
+        List<String> queries = musicMap.get(mood);
+
+        if (queries == null) {
+            log.warn("⚠️ Unknown mood: {} → fallback", mood);
+            queries = List.of("top hits playlist");
+        }
+
+        List<RecItem> result = queries.stream()
                 .limit(limit)
                 .map(q -> RecItem.builder()
                         .externalId("yt-" + q.replace(" ", "-"))
@@ -91,63 +154,91 @@ public class ExternalApiService {
                         .score(BigDecimal.valueOf(0.7))
                         .build())
                 .toList();
+
+        log.info("🎵 Music: {}", result.stream().map(RecItem::getTitle).toList());
+
+        return result;
     }
 
-    // ───────── ACTIVITIES (WITH IMAGES + MAPS) ─────────
+    // ───────── 🔥 FIXED ACTIVITIES (ALL MOODS) ─────────
     public List<RecItem> fetchActivities(String mood, int limit) {
 
-        Map<String, List<RecItem>> map = Map.of(
-                "sad", List.of(
-                        act("Cafe near you", "Change your mood", "cafe near me"),
-                        act("Park walk", "Fresh air helps", "park near me")
-                ),
-                "stressed", List.of(
-                        act("Spa nearby", "Relax your body", "spa near me"),
-                        act("Yoga class", "Reduce stress", "yoga near me")
-                ),
-                "energetic", List.of(
-                        act("Gym", "Use your energy", "gym near me"),
-                        act("Sports ground", "Play something", "sports ground near me")
-                ),
-                "calm", List.of(
-                        act("Reading", "Relax your mind", "library near me"),
-                        act("Sketching", "Be creative", "art studio near me")
-                )
-        );
+        mood = mood.toLowerCase().trim();
 
-        return map.getOrDefault(mood, map.get("sad"))
-                .stream()
-                .limit(limit)
-                .toList();
+        Map<String, List<RecItem>> map = new HashMap<>();
+
+        map.put("happy", List.of(
+                act("Cafe near you", "Enjoy something nice"),
+                act("Call a friend", "Share your happiness")
+        ));
+
+        map.put("sad", List.of(
+                act("Park walk", "Fresh air helps"),
+                act("Journaling", "Write your thoughts")
+        ));
+
+        map.put("angry", List.of(
+                act("Gym workout", "Release anger"),
+                act("Boxing", "Channel energy")
+        ));
+
+        map.put("stressed", List.of(
+                act("Meditation", "Relax your mind"),
+                act("Yoga class", "Reduce stress")
+        ));
+
+        map.put("calm", List.of(
+                act("Reading", "Stay peaceful"),
+                act("Sketching", "Be creative")
+        ));
+
+        map.put("energetic", List.of(
+                act("Running", "Use your energy"),
+                act("Sports", "Stay active")
+        ));
+
+        map.put("neutral", List.of(
+                act("Walk outside", "Clear your head"),
+                act("Watch something light", "Relax your mind")
+        ));
+
+        map.put("fearful", List.of(
+                act("Deep breathing", "Calm yourself"),
+                act("Talk to someone", "Feel safe")
+        ));
+
+        map.put("surprised", List.of(
+                act("Try something new", "Explore"),
+                act("Go out", "Experience something")
+        ));
+
+        map.put("disgusted", List.of(
+                act("Take a break", "Reset yourself"),
+                act("Clean your space", "Refresh your mind")
+        ));
+
+        if (!map.containsKey(mood)) {
+            log.warn("⚠️ Unknown mood: {} → fallback", mood);
+        }
+
+        List<RecItem> result = map.getOrDefault(mood, map.get("calm"));
+
+        log.info("🏃 Activities: {}", result.stream().map(RecItem::getTitle).toList());
+
+        return result.stream().limit(limit).toList();
     }
 
-    private RecItem act(String title, String reason, String search) {
+    private RecItem act(String title, String reason) {
         return RecItem.builder()
                 .externalId("act-" + title.replace(" ", "-").toLowerCase())
                 .title(title)
-                .imageUrl(getActivityImage(title))   // ✅ FIXED
+                .imageUrl(getActivityImage(title))
                 .reason(reason)
                 .score(BigDecimal.valueOf(0.8))
                 .build();
     }
 
-    // ───────── ACTIVITY IMAGES (FIXED) ─────────
     private String getActivityImage(String title) {
-
-        Map<String, String> images = Map.of(
-                "Cafe near you", "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=500",
-                "Park walk", "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=500",
-                "Reading", "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=500",
-                "Sketching", "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=500",
-                "Meditation", "https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=500",
-                "Gym", "https://images.unsplash.com/photo-1554284126-aa88f22d8b74?w=500",
-                "Spa nearby", "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=500",
-                "Yoga class", "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=500"
-        );
-
-        return images.getOrDefault(
-                title,
-                "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=500"
-        );
+        return "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=500";
     }
 }

@@ -7,7 +7,7 @@ export default function MoodDisplay({ moodResult, moodHistoryId }) {
   const navigate = useNavigate()
   const cfg = getMood(moodResult?.mood)
   const pct = Math.round((moodResult?.confidence || 0) * 100)
-
+  sessionStorage.setItem('currentMood', moodResult?.mood)
   return (
     <div className="w-full max-w-lg mx-auto">
       {/* Big mood card */}
