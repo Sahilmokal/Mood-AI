@@ -62,7 +62,7 @@ public class RecommendationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Mood session not found"));
 
         User user = userRepository.findByEmail(email).orElseThrow();
-        String mood = moodHistory.getMood().toLowerCase();
+        String mood = moodHistory.getMood().toLowerCase().trim();
 
         // Check cache: if recs already generated for this session, return them
         List<Recommendation> cached = recommendationRepository

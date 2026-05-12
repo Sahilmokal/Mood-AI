@@ -1,62 +1,41 @@
 import { useMemo } from 'react'
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer
-} from 'recharts'
-import { format } from 'date-fns'
-
-const MOOD_COLORS = {
-  happy: '#facc15', sad: '#60a5fa', angry: '#f87171',
-  stressed: '#fb923c', calm: '#2dd4bf', neutral: '#94a3b8',
-  fearful: '#c084fc', surprised: '#22d3ee', energetic: '#fbbf24',
-}
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { getMood } from '../../utils/moods'
 
 export default function MoodGraph({ history = [] }) {
-  const chartData = useMemo(() =>
-    history.slice().reverse().map(h => ({
-      date:       format(new Date(h.createdAt), 'MMM d'),
-      mood:       h.mood,
-      confidence: Math.round(h.confidence * 100),
+  const data = useMemo(() =>
+    [...history].reverse().slice(-20).map(h => ({
+      date:  new Date(h.createdAt).toLocaleDateString('en-US', { month:'short', day:'numeric' }),
+      mood:  h.mood,
+      conf:  Math.round(h.confidence * 100),
+      emoji: getMood(h.mood).emoji,
     })), [history])
 
-  if (!chartData.length) return (
-    <div className="flex items-center justify-center h-40 text-slate-500 text-sm">
-      No mood history yet — analyze your mood to get started!
+  if (!data.length) return (
+    <div className="flex flex-col items-center justify-center h-48 gap-3 text-dim">
+      <span className="text-4xl opacity-30">📈</span>
+      <span className="font-mono text-xs">No data yet — start analysing!</span>
     </div>
   )
 
   return (
-    <div className="w-full h-52">
+    <div className="h-56">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={chartData} margin={{ top: 5, right: 16, left: -10, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-          <XAxis
-            dataKey="date"
-            tick={{ fill: '#64748b', fontSize: 11 }}
-            axisLine={false} tickLine={false}
-          />
-          <YAxis
-            domain={[0, 100]}
-            tick={{ fill: '#64748b', fontSize: 11 }}
-            axisLine={false} tickLine={false}
-            tickFormatter={v => `${v}%`}
-          />
+        <LineChart data={data} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="4 4" stroke="#1e1e2e" />
+          <XAxis dataKey="date" tick={{ fill: '#64648a', fontSize: 10, fontFamily: 'DM Mono' }}
+                 axisLine={false} tickLine={false} />
+          <YAxis domain={[0,100]} tick={{ fill: '#64648a', fontSize: 10, fontFamily: 'DM Mono' }}
+                 axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
           <Tooltip
-            contentStyle={{ background: '#1e293b', border: '1px solid #334155',
-                            borderRadius: '12px', fontSize: 12 }}
-            labelStyle={{ color: '#94a3b8' }}
-            formatter={(v, n, p) => [`${v}%`, `Confidence`]}
-            labelFormatter={(label, payload) =>
-              payload?.[0] ? `${label} — ${payload[0].payload.mood}` : label}
+            contentStyle={{ background: '#111118', border: '1px solid #1e1e2e',
+                            borderRadius: '12px', fontFamily: 'DM Mono', fontSize: 11 }}
+            labelStyle={{ color: '#9898b8' }}
+            formatter={(v, _, p) => [`${v}%`, p.payload.emoji + ' ' + p.payload.mood]}
           />
-          <Line
-            type="monotone"
-            dataKey="confidence"
-            stroke="#3b5bdb"
-            strokeWidth={2.5}
-            dot={{ r: 4, fill: '#3b5bdb', strokeWidth: 0 }}
-            activeDot={{ r: 6, fill: '#567eff' }}
-          />
+          <Line type="monotone" dataKey="conf" stroke="#c8ff00" strokeWidth={2}
+                dot={{ r: 3, fill: '#c8ff00', strokeWidth: 0 }}
+                activeDot={{ r: 5, fill: '#c8ff00', boxShadow: '0 0 12px #c8ff0080' }} />
         </LineChart>
       </ResponsiveContainer>
     </div>

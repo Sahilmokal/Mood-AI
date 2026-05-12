@@ -2,22 +2,21 @@ import axios from 'axios'
 import { useAuthStore } from '../store/authStore'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api/v1',
-  timeout: 30000,
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1',
+  timeout: 35000,
 })
 
-// Attach JWT to every request
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(cfg => {
   const token = useAuthStore.getState().token
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
+  if (token) cfg.headers.Authorization = `Bearer ${token}`
+  return cfg
 })
 
-// Auto-logout on 401
 api.interceptors.response.use(
-  (res) => res,
-  (err) => {
+  r => r,
+  err => {
     if (err.response?.status === 401) {
+      console.warn('Unauthorized → logout')
       useAuthStore.getState().logout()
     }
     return Promise.reject(err)

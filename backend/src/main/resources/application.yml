@@ -42,7 +42,7 @@ ml-service:
 external-apis:
   tmdb:
     base-url: https://api.themoviedb.org/3
-    api-key: ${TMDB_API_KEY:your_tmdb_key}
+    api-key: 0fd4eb9ea6f5be9e82ab885e20de0e5b
   spotify:
     client-id: ${SPOTIFY_CLIENT_ID:your_client_id}
     client-secret: ${SPOTIFY_CLIENT_SECRET:your_client_secret}

@@ -17,12 +17,14 @@ public class RecommendationController {
 
     private final RecommendationService recommendationService;
 
-    @GetMapping
+    @GetMapping("/{id}")
     public ResponseEntity<RecommendationResponse> getRecommendations(
-            @RequestParam UUID moodHistoryId,
+            @PathVariable UUID id,
             @RequestParam(defaultValue = "6") int limit,
-            @AuthenticationPrincipal UserDetails user) {
+            @AuthenticationPrincipal UserDetails user
+    ) {
         return ResponseEntity.ok(
-                recommendationService.getRecommendations(moodHistoryId, user.getUsername(), limit));
+                recommendationService.getRecommendations(id, user.getUsername(), limit)
+        );
     }
 }

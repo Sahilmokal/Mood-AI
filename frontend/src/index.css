@@ -3,46 +3,128 @@
 @tailwind utilities;
 
 @layer base {
-  * { @apply box-border; }
-  html { @apply scroll-smooth; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
   body {
-    @apply bg-slate-950 text-slate-100 font-sans antialiased min-h-screen;
+    background-color: #0a0a0f;
+    color: #f0f0ff;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
   }
+
+  ::selection { background: #c8ff0030; color: #c8ff00; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #0a0a0f; }
+  ::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #c8ff0060; }
 }
 
 @layer components {
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl
-           bg-brand-500 hover:bg-brand-400 text-white font-semibold
-           transition-all duration-200 active:scale-95 disabled:opacity-50
-           disabled:cursor-not-allowed shadow-lg shadow-brand-500/20;
+  /* ── Buttons ─────────────────────────────────────────── */
+  .btn-volt {
+    @apply relative inline-flex items-center justify-center gap-2
+           px-6 py-3 rounded-full font-display font-semibold text-sm tracking-wide
+           bg-volt text-ink overflow-hidden
+           transition-all duration-200 active:scale-95
+           disabled:opacity-40 disabled:cursor-not-allowed;
+    box-shadow: 0 0 24px #c8ff0030;
   }
-  .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl
-           bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold
-           border border-slate-700 transition-all duration-200 active:scale-95;
+  .btn-volt:hover:not(:disabled) {
+    box-shadow: 0 0 40px #c8ff0060;
+    transform: translateY(-1px);
   }
-  .card {
-    @apply bg-slate-900 border border-slate-800 rounded-2xl p-6
-           shadow-xl shadow-black/20;
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+           px-6 py-3 rounded-full font-display font-medium text-sm
+           border border-border text-soft hover:text-snow hover:border-muted
+           transition-all duration-200 active:scale-95;
   }
-  .input-field {
-    @apply w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3
-           text-slate-100 placeholder-slate-500 focus:outline-none
-           focus:ring-2 focus:ring-brand-500 focus:border-transparent
+
+  .btn-outline-volt {
+    @apply inline-flex items-center justify-center gap-2
+           px-6 py-3 rounded-full font-display font-medium text-sm
+           border border-volt/40 text-volt hover:bg-volt/10 hover:border-volt
+           transition-all duration-200 active:scale-95;
+  }
+
+  /* ── Cards ───────────────────────────────────────────── */
+  .card-dark {
+    @apply bg-panel border border-border rounded-2xl;
+  }
+
+  .card-glow {
+    @apply bg-panel border border-border rounded-2xl;
+    box-shadow: 0 0 0 1px #1e1e2e, 0 24px 48px #00000060;
+  }
+
+  /* ── Inputs ──────────────────────────────────────────── */
+  .input-dark {
+    @apply w-full bg-surface border border-border rounded-xl px-4 py-3
+           font-body text-snow placeholder-dim
+           focus:outline-none focus:border-volt/50 focus:ring-1 focus:ring-volt/20
            transition-all duration-200;
   }
-  .mood-badge {
-    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
-           text-sm font-semibold uppercase tracking-wide;
+
+  /* ── Tags / Badges ───────────────────────────────────── */
+  .tag {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full
+           text-xs font-mono font-medium tracking-wider uppercase;
   }
-  .section-title {
-    @apply text-xl font-bold text-slate-100 mb-4;
+
+  .tag-volt  { @apply tag bg-volt/10 text-volt border border-volt/20; }
+  .tag-aurora { @apply tag bg-aurora/10 text-aurora border border-aurora/20; }
+  .tag-rose  { @apply tag bg-rose/10 text-rose border border-rose/20; }
+  .tag-dim   { @apply tag bg-muted/40 text-dim border border-border; }
+
+  /* ── Section heading ─────────────────────────────────── */
+  .section-label {
+    @apply font-mono text-xs tracking-[0.2em] uppercase text-dim;
+  }
+
+  /* ── Grid backgrounds ────────────────────────────────── */
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(200,255,0,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,255,0,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
   }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0f172a; }
-::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #475569; }
+/* ── Glow orb backgrounds ─────────────────────────────── */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+.orb-volt  { background: radial-gradient(circle, #c8ff0020, transparent 70%); }
+.orb-aurora { background: radial-gradient(circle, #00ffc815, transparent 70%); }
+.orb-rose  { background: radial-gradient(circle, #ff4f7b15, transparent 70%); }
+
+/* ── Mood ring animation ──────────────────────────────── */
+@keyframes moodRing {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  50%  { transform: scale(1.08); opacity: 1;  }
+  100% { transform: scale(1);   opacity: 0.6; }
+}
+.mood-ring { animation: moodRing 3s ease-in-out infinite; }
+
+/* ── Scan line ────────────────────────────────────────── */
+@keyframes scanLine {
+  0%   { transform: translateY(-4px); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+.scan-line {
+  position: absolute; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, #c8ff0060, transparent);
+  animation: scanLine 2.5s ease-in-out infinite;
+  pointer-events: none;
+}

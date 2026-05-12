@@ -1,16 +1,13 @@
 package com.moodrec.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class RecommendationResponse {
+
     private String mood;
     private BigDecimal confidence;
     private RecommendationGroups recommendations;
@@ -31,6 +28,10 @@ public class RecommendationResponse {
         private String reason;
         private BigDecimal score;
         private String type;
-        private Boolean liked;      // null = no feedback yet
+        private Boolean liked;
+
+        // 🔥 NEW FIELDS
+        private String youtubeUrl;
+        private String mapUrl;
     }
 }
