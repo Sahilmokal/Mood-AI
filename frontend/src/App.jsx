@@ -7,7 +7,7 @@ import Dashboard   from './pages/Dashboard'
 import Profile     from './pages/Profile'
 import Login       from './pages/Login'
 import Register    from './pages/Register'
-
+import HowItWorks from './pages/HowItWorks'
 function Guard({ children }) {
   const token = useAuthStore(s => s.token)
   return token ? children : <Navigate to="/login" replace />
@@ -18,9 +18,11 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login"    element={<Login />} />
+        
         <Route path="/register" element={<Register />} />
         <Route element={<Layout />}>
           <Route path="/"                         element={<Guard><LandingPage /></Guard>} />
+          <Route path="/how-it-works" element={<Guard><HowItWorks /></Guard>} />
           <Route path="/result/:id"               element={<Guard><ResultPage /></Guard>} />
           <Route path="/dashboard/:id"            element={<Guard><Dashboard /></Guard>} />
           <Route path="/profile"                  element={<Guard><Profile /></Guard>} />

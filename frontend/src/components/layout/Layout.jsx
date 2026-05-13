@@ -159,7 +159,24 @@ export default function Layout() {
             </div>
 
           </Link>
-
+{/* NAV LINKS */}
+<nav className="hidden sm:flex items-center gap-1">
+  {[
+    { to: '/',             label: 'Analyze'      },
+    { to: '/how-it-works', label: 'How It Works' },
+    { to: '/profile',      label: 'History'      },
+  ].map(n => (
+    <Link key={n.to} to={n.to}
+      className="px-4 py-2 rounded-full text-sm font-medium transition-all duration-200"
+      style={{
+        color: loc.pathname === n.to ? theme.color : 'rgba(255,255,255,0.5)',
+        background: loc.pathname === n.to ? `${theme.color}15` : 'transparent',
+        border: loc.pathname === n.to ? `1px solid ${theme.color}30` : '1px solid transparent',
+      }}>
+      {n.label}
+    </Link>
+  ))}
+</nav>
           {/* ACTIONS */}
           <div className="flex items-center gap-2">
 
